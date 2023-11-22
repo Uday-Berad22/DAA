@@ -1,0 +1,560 @@
+////////////////////////////////////////////// Ass 1////////////////////////////////////////////////////
+import java.util.*;
+
+public class SquareOfNumber {
+    static String add(String a, String b) {
+        String sum = "";
+        int carry = 0;
+        int sumation = 0;
+        int n = Math.max(a.length(), b.length());
+        if (a.length() < n) {
+            while (a.length() < n) {
+                a = '0' + a;
+            }
+        }
+        if (b.length() < n) {
+            while (b.length() < n) {
+                b = '0' + b;
+            }
+        }
+        for (int i = n - 1; i >= 0; i--) {
+            int x = a.charAt(i) - '0';
+            int y = b.charAt(i) - '0';
+            sumation = x + y + carry;
+            carry = sumation / 10;
+            sum = Integer.toString(sumation % 10) + sum;
+        }
+        if (carry > 0) {
+            sum = Integer.toString(carry) + sum;
+        }
+        return sum;
+    }
+
+    static String Multiply_two_Numbers(String a, String b) {
+        String result = "";
+        int n = Math.max(a.length(), b.length());
+        while (a.length() < n) {
+            a = '0' + a;
+        }
+        while (b.length() < n) {
+            b = '0' + b;
+        }
+        if (n <= 1) {
+            int mul = (a.charAt(0) - '0') * (b.charAt(0) - '0');
+            return Integer.toString(mul);
+        }
+        int mid = n / 2;
+        String a1 = a.substring(0, mid);
+        String a2 = a.substring(mid);
+        String b1 = b.substring(0, mid);
+        String b2 = b.substring(mid);
+
+        String A = Multiply_two_Numbers(a1, b1);
+        String B = Multiply_two_Numbers(a2, b1);
+        String C = Multiply_two_Numbers(a1, b2);
+        String D = Multiply_two_Numbers(a2, b2);
+
+        String firstTerm = A + "0".repeat(2 * (n - mid));
+        String secondTerm = add(B, C) + "0".repeat(n - mid);
+        result = add(add(firstTerm, secondTerm), D);
+        return result;
+    }
+
+    static String Square_Of_20_Digit_Number(String a) {
+        return Multiply_two_Numbers(a, a);
+    }
+
+    public static void main(String args[]) {
+        String a;
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter the Number");
+        a = sc.nextLine();
+        String result = Square_Of_20_Digit_Number(a);
+        System.out.println(result);
+    }
+}
+
+
+///////////////////////////////////////////////////////////////// Ass 2/////////////////////////////////// /
+
+import java.util.*;
+
+public class JobSeq {
+    static class Job {
+        int id;
+        int profit;
+        int deadline;
+
+        Job(int id, int profit, int deadline) {
+            this.id = id;
+            this.profit = profit;
+            this.deadline = deadline;
+        }
+    }
+
+    public static void main(String[] args) {
+        System.out.println("Enter Number of Jobs");
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int[] job = new int[n];
+        int[] profit = new int[n];
+        int[] deadline = new int[n];
+        int maxDeadline = 0;
+        for (int i = 0; i < n; i++) {
+            job[i] = i + 1;
+            profit[i] = sc.nextInt();
+            deadline[i] = sc.nextInt();
+            maxDeadline = Math.max(maxDeadline, deadline[i]);
+        }
+        boolean[] jobsequence = new boolean[maxDeadline + 1];
+        for (int i = 0; i <= maxDeadline; i++) {
+            jobsequence[i] = false;
+        }
+        Job[] jobs = new Job[n];
+        for (int i = 0; i < n; i++) {
+            jobs[i] = new Job(job[i], profit[i], deadline[i]);
+        }
+        // Arrays.sort(jobs, new Comparator<Job>() {
+        // public int compare(Job o1, Job o2) {
+        // return o2.profit - o1.profit;
+        // }
+        // });
+        for (int i = 0; i < n; i++) {
+            int x = jobs[i].profit;
+            int y = jobs[i].deadline;
+            int z = jobs[i].id;
+            int j = i;
+            while (j > 0 && jobs[j - 1].profit < x) {
+                jobs[j].profit = jobs[j - 1].profit;
+                jobs[j].deadline = jobs[j - 1].deadline;
+                jobs[j].id = jobs[j - 1].id;
+                j--;
+            }
+            jobs[j].profit = x;
+            jobs[j].deadline = y;
+            jobs[j].id = z;
+        }
+        int maxprofit = 0;
+        for (int i = 0; i < n; i++) {
+            System.out.println(jobs[i].profit + " " + jobs[i].deadline + " " + jobs[i].id);
+            for (int j = jobs[i].deadline; j > 0; j--) {
+                if (jobsequence[j] == false) {
+                    maxprofit += jobs[i].profit;
+                    jobsequence[j] = true;
+                    // System.out.println(jobs[i].id);
+                    break;
+                }
+            }
+        }
+        for (int i = 0; i < n; i++) {
+
+        }
+        System.out.println("Maximum Profit is " + maxprofit);
+
+    }
+}
+
+
+/////////////////////////////////////////// Ass 3///////////////////////////////////////////////////////////////
+
+import java.util.*;
+
+public class FloydWarshall {
+    public static void main(String args[]) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter the number n");
+        int n = sc.nextInt();
+        int[][] graph = new int[n][n];
+        System.out.println("Enter the adjacency matrix");
+        int Infinity = Integer.MAX_VALUE;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                int cost = sc.nextInt();
+                if (cost == -1) {
+                    graph[i][j] = Infinity;
+                } else {
+                    graph[i][j] = cost;
+                }
+            }
+        }
+
+        for (int via = 0; via < n; via++) {
+            for (int u = 0; u < n; u++) {
+                for (int v = 0; v < n; v++) {
+                    if (graph[u][via] != Infinity && graph[via][v] != Infinity
+                            && graph[u][via] + graph[via][v] < graph[u][v]) {
+                        graph[u][v] = graph[u][via] + graph[via][v];
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < n; i++) {
+            System.out.println();
+            for (int j = 0; j < n; j++) {
+                if (graph[i][j] == Infinity) {
+                    System.out.print("-1");
+                } else {
+                    System.out.print(graph[i][j] + "\t");
+                }
+            }
+        }
+    }
+}
+
+
+////////////////////////////////////////////////////      Ass 4   //////////////////////////////////////
+
+
+// A Java program for Dijkstra's single source shortest path
+// algorithm. The program is for adjacency matrix
+// representation of the graph
+import java.io.*;
+import java.lang.*;
+import java.util.*;
+
+class Dijikstra {
+    // A utility function to find the vertex with minimum
+    // distance value, from the set of vertices not yet
+    // included in shortest path tree
+    static final int V = 9;
+
+    int minDistance(int dist[], Boolean sptSet[]) {
+        // Initialize min value
+        int min = Integer.MAX_VALUE, min_index = -1;
+
+        for (int v = 0; v < V; v++)
+            if (sptSet[v] == false && dist[v] <= min) {
+                min = dist[v];
+                min_index = v;
+            }
+
+        return min_index;
+    }
+
+    // A utility function to print the constructed distance
+    // array
+    void printSolution(int dist[]) {
+        System.out.println(
+                "Vertex \t\t Distance from Source");
+        for (int i = 0; i < V; i++)
+            System.out.println(i + " \t\t " + dist[i]);
+    }
+
+    // Function that implements Dijkstra's single source
+    // shortest path algorithm for a graph represented using
+    // adjacency matrix representation
+    void dijkstra(int graph[][], int src) {
+        int dist[] = new int[V]; // The output array.
+                                 // dist[i] will hold
+        // the shortest distance from src to i
+
+        // sptSet[i] will true if vertex i is included in
+        // shortest path tree or shortest distance from src
+        // to i is finalized
+
+        Boolean sptSet[] = new Boolean[V];
+
+        // Initialize all distances as INFINITE and stpSet[]
+        // as false
+        for (int i = 0; i < V; i++) {
+            dist[i] = Integer.MAX_VALUE;
+            sptSet[i] = false;
+        }
+
+        // Distance of source vertex from itself is always 0
+        dist[src] = 0;
+
+        // Find shortest path for all vertices
+        for (int count = 0; count < V - 1; count++) {
+            // Pick the minimum distance vertex from the set
+            // of vertices not yet processed. u is always
+            // equal to src in first iteration.
+            int u = minDistance(dist, sptSet);
+
+            // Mark the picked vertex as processed
+            sptSet[u] = true;
+
+            // Update dist value of the adjacent vertices of
+            // the picked vertex.
+            for (int v = 0; v < V; v++)
+
+                // Update dist[v] only if is not in sptSet,
+                // there is an edge from u to v, and total
+                // weight of path from src to v through u is
+                // smaller than current value of dist[v]
+                if (!sptSet[v] && graph[u][v] != 0
+                        && dist[u] != Integer.MAX_VALUE
+                        && dist[u] + graph[u][v] < dist[v])
+                    dist[v] = dist[u] + graph[u][v];
+
+        }
+
+        // print the constructed distance array
+        printSolution(dist);
+    }
+
+    // Driver's code
+    public static void main(String[] args) {
+        /*
+         * Let us create the example graph discussed above
+         */
+        int graph[][] = new int[][] { { 0, 4, 0, 0, 0, 0, 0, 8, 0 },
+                { 4, 0, 8, 0, 0, 0, 0, 11, 0 },
+                { 0, 8, 0, 7, 0, 4, 0, 0, 2 },
+                { 0, 0, 7, 0, 9, 14, 0, 0, 0 },
+                { 0, 0, 0, 9, 0, 10, 0, 0, 0 },
+                { 0, 0, 4, 14, 10, 0, 2, 0, 0 },
+                { 0, 0, 0, 0, 0, 2, 0, 1, 6 },
+                { 8, 11, 0, 0, 0, 0, 1, 0, 7 },
+                { 0, 0, 2, 0, 0, 0, 6, 7, 0 } };
+        Dijikstra t = new Dijikstra();
+
+        // Function call
+        t.dijkstra(graph, 0);
+    }
+}
+
+
+
+//// Opti
+import java.util.*;
+
+class NetworkDelayTime {
+
+    public int networkDelayTime(int[][] times, int N, int K) {
+        Map<Integer, List<int[]>> graph = new HashMap<>();
+        for (int[] edge : times) {
+            if (!graph.containsKey(edge[0])) {
+                graph.put(edge[0], new ArrayList<>());
+            }
+            graph.get(edge[0]).add(new int[]{edge[1], edge[2]});
+        }
+
+        int[] distances = new int[N + 1];
+        Arrays.fill(distances, Integer.MAX_VALUE);
+        distances[K] = 0;
+
+        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[1] - b[1]);
+        pq.offer(new int[]{K, 0});
+
+        while (!pq.isEmpty()) {
+            int[] node = pq.poll();
+            int u = node[0];
+            int distU = node[1];
+
+            if (distU > distances[u]) {
+                continue;
+            }
+
+            if (graph.containsKey(u)) {
+                for (int[] neighbor : graph.get(u)) {
+                    int v = neighbor[0];
+                    int weightUV = neighbor[1];
+                    int newDist = distU + weightUV;
+
+                    if (newDist < distances[v]) {
+                        distances[v] = newDist;
+                        pq.offer(new int[]{v, newDist});
+                    }
+                }
+            }
+        }
+
+        int maxTime = 0;
+        for (int i = 1; i <= N; i++) {
+            if (distances[i] == Integer.MAX_VALUE) {
+                return -1; // Node i is not reachable
+            }
+            maxTime = Math.max(maxTime, distances[i]);
+        }
+        return maxTime;
+    }
+
+    public static void main(String[] args) {
+        NetworkDelayTime networkDelayTime = new NetworkDelayTime();
+
+        int[][] times = {{2, 1, 1}, {2, 3, 1}, {3, 4, 1}};
+        int N = 4;
+        int K = 2;
+
+        int result = networkDelayTime.networkDelayTime(times, N, K);
+        System.out.println("Time taken for signal to travel: " + result);
+    }
+}
+
+
+/////////////////////////////////////////////////////      Ass 5 //////////////////////////////////////////
+
+import java.util.*;
+
+public class KnightCode {
+    static int N = 8;
+    static int move_x[] = { 2, 1, -1, -2, -2, -1, 1, 2 };
+    static int move_y[] = { 1, 2, 2, 1, -1, -2, -2, -1 };
+
+    static boolean check(int x, int y, int board[][]) {
+        if (x >= 0 && x < N && y >= 0 && y < N && board[x][y] == -1)
+            return true;
+        return false;
+    }
+
+    static boolean find_Solution(int board[][], int x, int y, int count) {
+        if (count == N * N) {
+            return true;
+        }
+        for (int i = 0; i < 8; i++) {
+            int next_x = x + move_x[i];
+            int next_y = y + move_y[i];
+            if (check(next_x, next_y, board)) {
+                board[next_x][next_y] = count;
+                if (find_Solution(board, next_x, next_y, count + 1)) {
+                    return true;
+                } else {
+                    board[next_x][next_y] = -1;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static void main(String args[]) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter the size of the board");
+        int n = sc.nextInt();
+        int board[][] = new int[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                board[i][j] = -1;
+            }
+        }
+        System.out.println("Enter the starting position");
+        int x = sc.nextInt();
+        int y = sc.nextInt();
+        N = n;
+        board[x][y] = 0;
+        if (find_Solution(board, x, y, 1) == false) {
+            System.out.println("Solution does not exist");
+        } else {
+            for (int i = 0; i < n; i++) {
+                System.out.println();
+                for (int j = 0; j < n; j++) {
+                    System.out.print(board[i][j] + " ");
+                }
+            }
+            System.out.println();
+            // System.out.println(count);
+        }
+    }
+}
+
+
+//////////////////////////  Ass 6///////////////////////////
+
+import java.util.*;
+
+class Node {
+    Node parent;
+    int pathCost;
+    int cost;
+    int workerID;
+    int jobID;
+    boolean[] assigned;
+
+    Node(int x, int y, boolean[] assigned, Node parent) {
+        this.parent = parent;
+        this.assigned = assigned.clone();
+        if (y > 0) {
+            this.assigned[y] = true;
+        }
+        this.workerID = x;
+        this.jobID = y;
+    }
+}
+
+class Main {
+    static final int N = 4;
+
+    static Node newNode(int x, int y, boolean[] assigned, Node parent) {
+        return new Node(x, y, assigned, parent);
+    }
+
+    static int calculateCost(int[][] costMatrix, int x, int y, boolean[] assigned) {
+        int cost = 0;
+        boolean[] available = new boolean[N];
+
+        for (int i = x + 1; i < N; i++) {
+            int min = Integer.MAX_VALUE;
+            int minIndex = -1;
+
+            for (int j = 0; j < N; j++) {
+                if (!assigned[j] && available[j] && costMatrix[i][j] < min) {
+                    minIndex = j;
+                    min = costMatrix[i][j];
+                }
+            }
+
+            cost += min;
+            if (minIndex >= 0)
+                available[minIndex] = true;
+        }
+        return cost;
+    }
+
+    static class Comp implements Comparator<Node> {
+        public int compare(Node lhs, Node rhs) {
+            return lhs.cost - rhs.cost;
+        }
+    }
+
+    static void printAssignments(Node min) {
+        if (min.parent == null)
+            return;
+
+        printAssignments(min.parent);
+        System.out.println("Assign Worker " + (char) (min.workerID + 'A') + " to Job " + min.jobID);
+    }
+
+    static int findMinCost(int[][] costMatrix) {
+        PriorityQueue<Node> pq = new PriorityQueue<>(new Comp());
+        boolean[] assigned = new boolean[N];
+        Node root = newNode(-1, -1, assigned, null);
+        root.pathCost = root.cost = 0;
+        root.workerID = -1;
+
+        pq.add(root);
+
+        while (!pq.isEmpty()) {
+            Node min = pq.poll();
+            int i = min.workerID + 1;
+
+            if (i == N) {
+                printAssignments(min);
+                return min.cost;
+            }
+
+            for (int j = 0; j < N; j++) {
+                if (!min.assigned[j]) {
+                    Node child = newNode(i, j, min.assigned, min);
+                    child.pathCost = min.pathCost + costMatrix[i][j];
+                    child.cost = child.pathCost + calculateCost(costMatrix, i, j, child.assigned);
+                    pq.add(child);
+                }
+            }
+        }
+        return -1;
+    }
+
+    public static void main(String[] args) {
+        int[][] costMatrix = {
+                { 9, 2, 7, 8 },
+                { 6, 4, 3, 7 },
+                { 5, 8, 1, 8 },
+                { 7, 6, 9, 4 }
+        };
+
+        System.out.println("\nOptimal Cost is: " + findMinCost(costMatrix));
+    }
+}
+
+
+
